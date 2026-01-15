@@ -6,7 +6,8 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 import { UserTable } from '@/widgets/user-list/ui/UserTable';
-import { CreateUserModal } from '@/features/create-user'; // Импортируем модалку
+import { CreateUserModal } from '@/features/create-user';
+import { EditUserModal } from '@/features/edit-user';
 import { useUsers, useDeleteUser } from '@/entities/user/api/useUsers';
 import { User } from '@/shared/api/users';
 import { dayjs } from '@/shared/lib/dayjs';
@@ -33,9 +34,9 @@ export const UsersPage: React.FC = () => {
   const deleteUser = useDeleteUser();
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleCreate = () => {
     setCreateModalOpen(true);
@@ -125,10 +126,29 @@ export const UsersPage: React.FC = () => {
         />
       </Card>
 
-      {/* Модальное окно создания пользователя */}
       <CreateUserModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
+      />
+
+      <EditUserModal
+        user={selectedUser}
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedUser(null);
+        }}
+        mode="edit"
+      />
+
+      <EditUserModal
+        user={selectedUser}
+        open={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedUser(null);
+        }}
+        mode="view"
       />
     </div>
   );
