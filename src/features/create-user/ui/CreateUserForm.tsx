@@ -1,207 +1,120 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Upload, Row, Col, Space } from 'antd';
-import { 
-  UploadOutlined, 
-  UserOutlined, 
-  MailOutlined, 
-  PhoneOutlined, 
-  GlobalOutlined, 
-  BuildOutlined 
-} from '@ant-design/icons';
-import type { UploadFile, UploadProps } from 'antd';
-import { CreateUserDto } from '@/shared/api/users';
-import { beforeUpload, getBase64 } from '../lib/image-utils';
+// src/features/create-user/ui/CreateUserForm.tsx
+import React from 'react';
+import { Form, Input, Button, Space, Upload, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { FormInstance } from 'antd';
+import { CreateUserDto } from '@/shared/api/users/types';
 
-interface CreateUserFormProps {
-  onSubmit: (values: CreateUserDto) => void;
-  isPending: boolean;
+// Экспортируемый тип для значений формы
+export type UserFormValues = {
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  company: string;
+};
+
+// Пропсы компонента формы
+export interface CreateUserFormProps {
+  onSubmit: (values: UserFormValues) => void | Promise<void>;
+  loading?: boolean;
+  onCancel?: () => void;
+  disabled?: boolean;
+  initialValues?: Partial<UserFormValues>;
 }
 
-export const CreateUserForm: React.FC<CreateUserFormProps> = ({
+const CreateUserForm: React.FC<CreateUserFormProps> = ({
   onSubmit,
-  isPending,
+  loading = false,
+  onCancel,
+  disabled = false,
+  initialValues,
 }) => {
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [previewImage, setPreviewImage] = useState<string>('');
 
-  const handleUploadChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
-  };
-
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview && file.originFileObj) {
-      file.preview = await getBase64(file.originFileObj);
+  const handleSubmit = async (values: UserFormValues) => {
+    try {
+      await onSubmit(values);
+      form.resetFields();
+    } catch (error) {
+      console.error('Ошибка при отправке формы:', error);
     }
-    setPreviewImage(file.url || (file.preview as string));
-  };
-
-  const handleSubmit = (values: CreateUserDto) => {
-    // Если есть загруженное изображение, добавляем его в данные
-    if (fileList.length > 0 && fileList[0].originFileObj) {
-      values.avatar = URL.createObjectURL(fileList[0].originFileObj);
-    }
-    onSubmit(values);
-  };
-
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
   };
 
   return (
-    <Form<CreateUserDto>
+    <Form
       form={form}
       layout="vertical"
       onFinish={handleSubmit}
-      disabled={isPending}
+      initialValues={initialValues}
+      disabled={disabled}
     >
-      <Row gutter={16}>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="name"
-            label="Имя"
-            rules={[
-              { required: true, message: 'Пожалуйста, введите имя' },
-              { min: 2, message: 'Имя должно содержать минимум 2 символа' },
-              { max: 50, message: 'Имя не должно превышать 50 символов' },
-            ]}
-          >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="Введите имя"
-              size="large"
-            />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: 'Пожалуйста, введите email' },
-              { type: 'email', message: 'Введите корректный email адрес' },
-            ]}
-          >
-            <Input
-              prefix={<MailOutlined />}
-              placeholder="Введите email"
-              size="large"
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={16}>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="phone"
-            label="Телефон"
-            rules={[
-              { 
-                pattern: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, 
-                message: 'Введите корректный номер телефона' 
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined />}
-              placeholder="+7 (999) 999-99-99"
-              size="large"
-            />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="website"
-            label="Вебсайт"
-            rules={[
-              { 
-                type: 'url', 
-                message: 'Введите корректный URL (начинается с http:// или https://)' 
-              },
-            ]}
-          >
-            <Space.Compact block style={{ width: '100%' }}>
-              <Input
-                style={{ width: '30%' }}
-                value="https://"
-                disabled
-                size="large"
-              />
-              <Input
-                prefix={<GlobalOutlined />}
-                placeholder="example.com"
-                size="large"
-                style={{ width: '70%' }}
-              />
-            </Space.Compact>
-          </Form.Item>
-        </Col>
-      </Row>
-
       <Form.Item
-        name="company"
-        label="Компания"
+        label="Имя"
+        name="name"
         rules={[
-          { max: 100, message: 'Название компании не должно превышать 100 символов' },
+          { required: true, message: 'Введите имя пользователя' },
+          { min: 2, message: 'Имя должно содержать минимум 2 символа' },
         ]}
       >
-        <Input
-          prefix={<BuildOutlined />}
-          placeholder="Введите название компании"
-          size="large"
-        />
+        <Input placeholder="Введите имя" />
       </Form.Item>
 
       <Form.Item
-        name="avatar"
-        label="Аватар"
-        valuePropName="fileList"
-        getValueFromEvent={normFile}
+        label="Email"
+        name="email"
+        rules={[
+          { required: true, message: 'Введите email' },
+          { type: 'email', message: 'Введите корректный email' },
+        ]}
       >
-        <Upload
-          listType="picture-card"
-          fileList={fileList}
-          onChange={handleUploadChange}
-          onPreview={handlePreview}
-          beforeUpload={beforeUpload}
-          maxCount={1}
-          accept="image/*"
-        >
-          {fileList.length < 1 && (
-            <div>
-              <UploadOutlined />
-              <div style={{ marginTop: 8 }}>Загрузить</div>
-            </div>
-          )}
-        </Upload>
+        <Input placeholder="Введите email" />
       </Form.Item>
 
-      {previewImage && (
-        <img
-          src={previewImage}
-          alt="Preview"
-          style={{ width: '100%', maxHeight: 200, objectFit: 'contain', marginBottom: 16 }}
-        />
-      )}
+      <Form.Item
+        label="Телефон"
+        name="phone"
+        rules={[
+          { required: true, message: 'Введите телефон' },
+          { pattern: /^\+?[1-9]\d{1,14}$/, message: 'Введите корректный номер телефона' },
+        ]}
+      >
+        <Input placeholder="+79991234567" />
+      </Form.Item>
 
-      <Form.Item style={{ marginTop: 24, marginBottom: 0 }}>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={isPending}
-          disabled={isPending}
-          size="large"
-          block
-        >
-          {isPending ? 'Создание...' : 'Создать пользователя'}
-        </Button>
+      <Form.Item
+        label="Аватар (URL)"
+        name="avatar"
+        rules={[
+          { required: true, message: 'Введите URL аватара' },
+          { type: 'url', message: 'Введите корректный URL' },
+        ]}
+      >
+        <Input placeholder="https://example.com/avatar.jpg" />
+      </Form.Item>
+
+      <Form.Item
+        label="Компания"
+        name="company"
+        rules={[{ required: true, message: 'Введите название компании' }]}
+      >
+        <Input placeholder="Введите название компании" />
+      </Form.Item>
+
+      <Form.Item>
+        <Space>
+          <Button type="primary" htmlType="submit" loading={loading} disabled={disabled}>
+            {disabled ? 'Просмотр' : 'Сохранить'}
+          </Button>
+          {onCancel && (
+            <Button onClick={onCancel} disabled={loading}>
+              Отмена
+            </Button>
+          )}
+        </Space>
       </Form.Item>
     </Form>
   );
 };
+
+export { CreateUserForm };

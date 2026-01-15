@@ -1,48 +1,51 @@
+// src/features/create-user/ui/CreateUserModal.tsx
 import React from 'react';
 import { Modal } from 'antd';
-import { CreateUserForm } from './CreateUserForm';
+import { CreateUserForm, UserFormValues } from './CreateUserForm';
 import { useCreateUser } from '@/entities/user/api/useUsers';
-import { CreateUserDto } from '@/shared/api/users';
+import { CreateUserDto } from '@/shared/api/users/types';
 
 interface CreateUserModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   open,
   onClose,
+  onSuccess,
 }) => {
-  const createUser = useCreateUser();
+  const createUserMutation = useCreateUser();
 
-  const handleSubmit = (values: CreateUserDto) => {
-    createUser.mutate(values, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    if (!createUser.isPending) {
+  const handleSubmit = async (values: UserFormValues) => {
+    try {
+      const userData: CreateUserDto = {
+        ...values,
+        company: values.company ? { name: values.company } : undefined,
+      };
+      
+      await createUserMutation.mutateAsync(userData);
       onClose();
+      onSuccess?.();
+    } catch (error) {
+      // Ошибка уже обработана в хуке
     }
   };
 
   return (
     <Modal
-      title="Создание пользователя"
+      title="Создать пользователя"
       open={open}
-      onCancel={handleCancel}
+      onCancel={onClose}
       footer={null}
-      width={700}
-      closable={!createUser.isPending}
-      maskClosable={!createUser.isPending}
+      width={600}
       destroyOnClose
     >
       <CreateUserForm
         onSubmit={handleSubmit}
-        isPending={createUser.isPending}
+        loading={createUserMutation.isLoading}
+        onCancel={onClose}
       />
     </Modal>
   );

@@ -1,45 +1,41 @@
 import React from 'react';
-import { Spin } from 'antd';
-import styled from 'styled-components';
+import { Spin, SpinProps } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 
-const LoaderContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-`;
-
-const FullScreenLoader = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-`;
-
-interface LoaderProps {
-  size?: 'small' | 'default' | 'large';
+interface LoaderProps extends SpinProps {
+  fullScreen?: boolean;
   tip?: string;
-  fullscreen?: boolean;
+  size?: 'small' | 'default' | 'large';
 }
 
-export const Loader: React.FC<LoaderProps> = ({ 
-  size = 'default', 
-  tip,
-  fullscreen = false,
+export const Loader: React.FC<LoaderProps> = ({
+  fullScreen = false,
+  tip = 'Загрузка...',
+  size = 'default',
+  ...spinProps
 }) => {
-  if (fullscreen) {
+  const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+
+  if (fullScreen) {
     return (
-      <FullScreenLoader>
-        <Spin size={size} tip={tip} fullscreen />
-      </FullScreenLoader>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        zIndex: 1000,
+      }}>
+        <Spin indicator={antIcon} tip={tip} size={size} {...spinProps} />
+      </div>
     );
   }
 
-  return (
-    <LoaderContainer>
-      <Spin size={size} />
-      {tip && <div style={{ marginTop: 8 }}>{tip}</div>}
-    </LoaderContainer>
-  );
+  return <Spin indicator={antIcon} tip={tip} size={size} {...spinProps} />;
 };
+
+export default Loader;

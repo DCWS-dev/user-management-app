@@ -1,116 +1,120 @@
+// src/pages/users/UsersPage.tsx
 import React, { useState } from 'react';
-import { Typography, Space, Card, Row, Col, Statistic } from 'antd';
-import {
-  TeamOutlined,
-  UserAddOutlined,
-  ClockCircleOutlined,
-} from '@ant-design/icons';
+import { Card, Row, Col, Button, Typography, Space, notification } from 'antd';
+import { PlusOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useUsers, useDeleteUser, useBulkDeleteUsers } from '@/entities/user/api/useUsers';
 import { UserTable } from '@/widgets/user-list/ui/UserTable';
-import { CreateUserModal } from '@/features/create-user';
-import { EditUserModal } from '@/features/edit-user';
-import { useUsers, useDeleteUser } from '@/entities/user/api/useUsers';
-import { User } from '@/shared/api/users';
-import { dayjs } from '@/shared/lib/dayjs';
-import { Loader } from '@/shared/ui/Loader';
-import styled from 'styled-components';
+import { CreateUserModal } from '@/features/create-user/ui/CreateUserModal';
+import { EditUserModal } from '@/features/edit-user/ui/EditUserModal';
+import { User } from '@/shared/api/users/types';
+import { useAuth } from '@/entities/session/model/useAuth';
 
 const { Title } = Typography;
 
-const PageHeader = styled.div`
-  margin-bottom: 24px;
-`;
-
-const StatsCard = styled(Card)`
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  .ant-card-body {
-    padding: 20px;
-  }
-`;
-
 export const UsersPage: React.FC = () => {
-  const { data: users = [], isLoading, refetch } = useUsers();
-  const deleteUser = useDeleteUser();
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
+  
+  const { data: usersData, isLoading, refetch } = useUsers();
+  const deleteUserMutation = useDeleteUser();
+  const bulkDeleteMutation = useBulkDeleteUsers();
+  const { logout } = useAuth();
 
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const users = usersData || [];
 
-  const handleCreate = () => {
-    setCreateModalOpen(true);
+  const handleCreateUser = () => {
+    setIsCreateModalOpen(true);
   };
 
-  const handleEdit = (user: User) => {
-    setSelectedUser(user);
-    setEditModalOpen(true);
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
   };
 
-  const handleView = (user: User) => {
-    setSelectedUser(user);
-    setViewModalOpen(true);
+  const handleViewUser = (user: User) => {
+    setViewingUser(user);
   };
 
-  const handleDelete = (id: string) => {
-    deleteUser.mutate(id);
+  const handleDeleteUser = async (id: string) => {
+    try {
+      await deleteUserMutation.mutateAsync(id);
+      notification.success({ message: 'Пользователь удален' });
+    } catch (error) {
+      notification.error({ message: 'Ошибка удаления пользователя' });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUserIds.length === 0) {
+      notification.warning({ message: 'Выберите пользователей для удаления' });
+      return;
+    }
+
+    try {
+      await bulkDeleteMutation.mutateAsync(selectedUserIds);
+      setSelectedUserIds([]);
+      notification.success({ message: 'Пользователи удалены' });
+    } catch (error) {
+      notification.error({ message: 'Ошибка удаления пользователей' });
+    }
   };
 
   const handleRefresh = () => {
     refetch();
   };
 
-  const totalUsers = users.length;
-  const newUsersLastWeek = users.filter(user =>
-    dayjs(user.createdAt).isAfter(dayjs().subtract(7, 'day'))
-  ).length;
-  const averageRegistration = users.length > 0
-    ? dayjs(users[0].createdAt).fromNow(true)
-    : 'Нет данных';
+  const handleCreateModalClose = () => {
+    setIsCreateModalOpen(false);
+  };
 
-  if (isLoading && users.length === 0) {
-    return <Loader tip="Загрузка пользователей..." />;
-  }
+  const handleEditModalClose = () => {
+    setEditingUser(null);
+  };
+
+  const handleViewModalClose = () => {
+    setViewingUser(null);
+  };
+
+  const handleSelectionChange = (selectedIds: string[]) => {
+    setSelectedUserIds(selectedIds);
+  };
 
   return (
     <div>
-      <PageHeader>
-        <Title level={2}>Управление пользователями</Title>
-        <Typography.Paragraph type="secondary">
-          Всего пользователей в системе: {totalUsers}
-        </Typography.Paragraph>
-      </PageHeader>
-
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
-          <StatsCard>
-            <Statistic
-              title="Всего пользователей"
-              value={totalUsers}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </StatsCard>
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <Col>
+          <Title level={2}>Пользователи</Title>
+          <Typography.Text type="secondary">
+            Всего пользователей: {users.length}
+          </Typography.Text>
         </Col>
-        <Col xs={24} sm={8}>
-          <StatsCard>
-            <Statistic
-              title="Новых за неделю"
-              value={newUsersLastWeek}
-              prefix={<UserAddOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </StatsCard>
-        </Col>
-        <Col xs={24} sm={8}>
-          <StatsCard>
-            <Statistic
-              title="Среднее время в системе"
-              value={averageRegistration}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </StatsCard>
+        <Col>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreateUser}
+            >
+              Создать пользователя
+            </Button>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={handleRefresh}
+              loading={isLoading}
+            >
+              Обновить
+            </Button>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleBulkDelete}
+              disabled={selectedUserIds.length === 0}
+              loading={bulkDeleteMutation.isLoading}
+            >
+              Удалить выбранных ({selectedUserIds.length})
+            </Button>
+          </Space>
         </Col>
       </Row>
 
@@ -118,38 +122,42 @@ export const UsersPage: React.FC = () => {
         <UserTable
           users={users}
           loading={isLoading}
-          onEdit={handleEdit}
-          onView={handleView}
-          onDelete={handleDelete}
-          onRefresh={handleRefresh}
-          onCreate={handleCreate}
+          onEditUser={handleEditUser}
+          onViewUser={handleViewUser}
+          onDeleteUser={handleDeleteUser}
+          onSelectionChange={handleSelectionChange}
         />
       </Card>
 
       <CreateUserModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        open={isCreateModalOpen}
+        onClose={handleCreateModalClose}
+        onSuccess={() => {
+          handleCreateModalClose();
+          refetch();
+        }}
       />
 
-      <EditUserModal
-        user={selectedUser}
-        open={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setSelectedUser(null);
-        }}
-        mode="edit"
-      />
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          open={!!editingUser}
+          onClose={handleEditModalClose}
+          onSuccess={() => {
+            handleEditModalClose();
+            refetch();
+          }}
+        />
+      )}
 
-      <EditUserModal
-        user={selectedUser}
-        open={viewModalOpen}
-        onClose={() => {
-          setViewModalOpen(false);
-          setSelectedUser(null);
-        }}
-        mode="view"
-      />
+      {viewingUser && (
+        <EditUserModal
+          user={viewingUser}
+          open={!!viewingUser}
+          onClose={handleViewModalClose}
+          mode="view"
+        />
+      )}
     </div>
   );
 };

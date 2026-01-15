@@ -26,8 +26,8 @@ export type UpdateUserDto = Partial<Omit<User, 'id' | 'createdAt'>> & {
   company?: string;
 };
 
-export const usersAPI = {
-  getUsers: async (): Promise<User[]> => {
+export const usersApi = {
+  getUsers: async (p0: { page: number; limit: number; }): Promise<User[]> => {
     const { data } = await api.get<User[]>('/users');
     return data;
   },
