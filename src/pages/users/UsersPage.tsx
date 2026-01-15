@@ -6,6 +6,7 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 import { UserTable } from '@/widgets/user-list/ui/UserTable';
+import { CreateUserModal } from '@/features/create-user'; // Импортируем модалку
 import { useUsers, useDeleteUser } from '@/entities/user/api/useUsers';
 import { User } from '@/shared/api/users';
 import { dayjs } from '@/shared/lib/dayjs';
@@ -31,9 +32,14 @@ export const UsersPage: React.FC = () => {
   const { data: users = [], isLoading, refetch } = useUsers();
   const deleteUser = useDeleteUser();
 
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const handleCreate = () => {
+    setCreateModalOpen(true);
+  };
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
@@ -53,7 +59,6 @@ export const UsersPage: React.FC = () => {
     refetch();
   };
 
-  // Статистика
   const totalUsers = users.length;
   const newUsersLastWeek = users.filter(user =>
     dayjs(user.createdAt).isAfter(dayjs().subtract(7, 'day'))
@@ -75,7 +80,6 @@ export const UsersPage: React.FC = () => {
         </Typography.Paragraph>
       </PageHeader>
 
-      {/* Статистика */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={8}>
           <StatsCard>
@@ -109,7 +113,6 @@ export const UsersPage: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Таблица пользователей */}
       <Card>
         <UserTable
           users={users}
@@ -118,9 +121,15 @@ export const UsersPage: React.FC = () => {
           onView={handleView}
           onDelete={handleDelete}
           onRefresh={handleRefresh}
-          onCreate={() => {/* Пока заглушка для создания */}}
+          onCreate={handleCreate}
         />
       </Card>
+
+      {/* Модальное окно создания пользователя */}
+      <CreateUserModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </div>
   );
 };
