@@ -10,8 +10,27 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #f0f2f5;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Стили для Ant Design */
+.ant-layout {
+  background: #f0f2f5;
+}
+
+.ant-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ant-btn {
+  border-radius: 6px;
+}
+
+.ant-input {
+  border-radius: 6px;
 }
