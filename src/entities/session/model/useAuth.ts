@@ -1,4 +1,3 @@
-// Если файла нет, создаем его:
 import { useState, useEffect, useCallback } from 'react';
 import { AUTH_CONFIG } from '@/shared/config';
 

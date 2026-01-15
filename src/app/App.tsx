@@ -27,13 +27,8 @@ export const App: React.FC = () => {
   return (
     <AppProviders>
       <Routes>
-        {/* Редирект с корня */}
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
-        
-        {/* Публичный маршрут - логин */}
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-        
-        {/* Защищенные маршруты */}
         <Route
           path={ROUTES.USERS}
           element={
@@ -44,8 +39,6 @@ export const App: React.FC = () => {
             </RequireAuth>
           }
         />
-        
-        {/* Обработка несуществующих маршрутов */}
         <Route path={ROUTES.NOT_FOUND} element={<NotFoundWrapper />} />
       </Routes>
     </AppProviders>

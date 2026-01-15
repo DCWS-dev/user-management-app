@@ -1,4 +1,3 @@
-// Имитация API авторизации
 export const authAPI = {
   login: async (login: string, password: string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -9,11 +8,10 @@ export const authAPI = {
         } else {
           reject(new Error('Неверные учетные данные. Используйте admin/admin'));
         }
-      }, 2000); // Имитация задержки сети
+      }, 2000);
     });
   },
-
   logout: (): Promise<void> => {
     return Promise.resolve();
-  }
+  },
 };
