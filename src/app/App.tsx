@@ -4,9 +4,24 @@ import { AppProviders } from './providers/AppProviders';
 import { Layout } from '@/shared/ui/Layout';
 import { LoginPage } from '@/pages/login';
 import { UsersPage } from '@/pages/users';
-import { NotFoundPage } from '@/pages/not-found';
+import { NotFoundPage, PublicNotFoundPage } from '@/pages/not-found';
 import { RequireAuth } from './providers/RequireAuth';
 import { ROUTES } from '@/shared/config';
+import { useAuth } from '@/entities/session/model/useAuth';
+
+const NotFoundWrapper: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return (
+      <Layout>
+        <NotFoundPage />
+      </Layout>
+    );
+  }
+  
+  return <PublicNotFoundPage />;
+};
 
 export const App: React.FC = () => {
   return (
@@ -30,8 +45,8 @@ export const App: React.FC = () => {
           }
         />
         
-        {/* Страница 404 */}
-        <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+        {/* Обработка несуществующих маршрутов */}
+        <Route path={ROUTES.NOT_FOUND} element={<NotFoundWrapper />} />
       </Routes>
     </AppProviders>
   );

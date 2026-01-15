@@ -9,6 +9,7 @@ export const ROUTES = {
   LOGIN: '/login',
   USERS: '/users',
   NOT_FOUND: '*',
+  404: '/404', // Добавляем явный путь для 404
 };
 
 // Конфигурация авторизации

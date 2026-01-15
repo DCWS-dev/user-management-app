@@ -1,0 +1,1 @@
+export { CustomResult } from './CustomResult';
