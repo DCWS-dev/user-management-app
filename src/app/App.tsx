@@ -5,46 +5,33 @@ import { Layout } from '@/shared/ui/Layout';
 import { LoginPage } from '@/pages/login';
 import { UsersPage } from '@/pages/users';
 import { NotFoundPage } from '@/pages/not-found';
-
-// Временная заглушка для проверки авторизации
-// На следующем этапе заменим на реальную логику
-const isAuthenticated = false;
+import { RequireAuth } from './providers/RequireAuth';
+import { ROUTES } from '@/shared/config';
 
 export const App: React.FC = () => {
   return (
     <AppProviders>
       <Routes>
-        {/* Редирект с корня на страницу входа */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Редирект с корня */}
+        <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
         
-        {/* Страница входа */}
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? (
-              <Navigate to="/users" replace />
-            ) : (
-              <LoginPage />
-            )
-          } 
-        />
+        {/* Публичный маршрут - логин */}
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         
         {/* Защищенные маршруты */}
-        <Route 
-          path="/users" 
+        <Route
+          path={ROUTES.USERS}
           element={
-            isAuthenticated ? (
+            <RequireAuth>
               <Layout>
                 <UsersPage />
               </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
+            </RequireAuth>
+          }
         />
         
         {/* Страница 404 */}
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
       </Routes>
     </AppProviders>
   );

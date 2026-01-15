@@ -23,14 +23,53 @@ body {
 }
 
 .ant-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .ant-btn {
   border-radius: 6px;
+  font-weight: 500;
 }
 
 .ant-input {
   border-radius: 6px;
+}
+
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* Анимации */
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+/* Кастомные стили для уведомлений */
+.ant-notification-notice {
+  border-radius: 8px;
+}
+
+.ant-notification-notice-success {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.ant-notification-notice-error {
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
 }
