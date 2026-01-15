@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { authAPI } from '@/shared/api/auth';
 import { useAuth } from '@/entities/session/model/useAuth';
-import { notification } from 'antd';
+import { App } from 'antd';
 
 export const useLoginMutation = () => {
   const { login } = useAuth();
+  const { notification } = App.useApp();
 
   return useMutation({
     mutationFn: ({ login: username, password }: { login: string; password: string }) => 

@@ -1,9 +1,8 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntdApp } from 'antd';
 import ruRU from 'antd/locale/ru_RU';
-import { handleApiError } from '@/shared/api/error-handler';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -14,11 +13,10 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 минут
-      onError: handleApiError,
+      staleTime: 5 * 60 * 1000,
     },
     mutations: {
-      onError: handleApiError,
+      retry: 1,
     },
   },
 });
@@ -35,14 +33,11 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
               borderRadius: 6,
               colorBgContainer: '#ffffff',
             },
-            components: {
-              Result: {
-                titleFontSize: 24,
-              },
-            },
           }}
         >
-          {children}
+          <AntdApp>
+            {children}
+          </AntdApp>
         </ConfigProvider>
       </QueryClientProvider>
     </BrowserRouter>
