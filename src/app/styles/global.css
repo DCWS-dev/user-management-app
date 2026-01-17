@@ -10,7 +10,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f0f2f5;
 }
 
 #root {
@@ -72,4 +71,152 @@ body {
 .ant-notification-notice-error {
   background: #fff2f0;
   border: 1px solid #ffccc7;
+}
+
+/* Стили для форм создания/редактирования пользователей */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: 6px;
+}
+
+.ant-upload.ant-upload-select-picture-card {
+  border-radius: 6px;
+  border-color: #d9d9d9;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item {
+  border-radius: 6px;
+}
+
+/* Стили для модальных окон */
+.ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+  padding: 20px 24px;
+}
+
+.ant-modal-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.ant-modal-body {
+  padding: 24px;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 12px 24px;
+}
+
+/* Стили для кнопок в формах */
+.ant-btn[disabled] {
+  opacity: 0.6;
+}
+
+/* Анимации для модальных окон */
+.ant-modal-wrap {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ant-modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Стили для таблицы пользователей */
+.ant-table-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.ant-table {
+  border-radius: 8px;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  border-bottom: none;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Стили для статистических карточек */
+.ant-statistic-title {
+  font-size: 14px;
+  color: #666;
+}
+
+.ant-statistic-content {
+  font-weight: 600;
+}
+
+/* Стили для аватаров пользователей */
+.ant-avatar {
+  transition: transform 0.3s;
+}
+
+.ant-avatar:hover {
+  transform: scale(1.1);
+}
+
+/* Стили для тегов */
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .ant-table {
+    font-size: 12px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 8px;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 8px;
+  }
+  
+  .ant-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
 }
